@@ -1,5 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
-<plugin id="cordova-plugin-callkit" version="1.0.0" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+<plugin id="cordova-plugin-callkit" version="1.0.0" 
+    xmlns="http://apache.org/cordova/ns/plugins/1.0" 
+    xmlns:android="http://schemas.android.com/apk/res/android">
     <name>Cordova CallKit</name>
 
     <js-module name="VoIPPushNotification" src="www/VoIPPushNotification.js">
@@ -35,7 +37,7 @@
 
         <source-file src="src/android/CordovaCall.java" target-dir="src/com/dmarc/cordovacall" />
         <source-file src="src/android/MyConnectionService.java" target-dir="src/com/dmarc/cordovacall" />
-  </platform>
+    </platform>
 
     <platform name="ios">
         <config-file target="config.xml" parent="/*">
@@ -51,6 +53,13 @@
                 <string>remote-notification</string>
                 <string>voip</string>
             </array>
+        </config-file>
+
+        <config-file target="*-Debug.plist" parent="aps-environment">
+            <string>development</string>
+        </config-file>
+        <config-file target="*-Release.plist" parent="aps-environment">
+            <string>production</string>
         </config-file>
 
         <header-file src="src/ios/CordovaCall.h" />

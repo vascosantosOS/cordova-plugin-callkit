@@ -15,6 +15,7 @@ NSMutableDictionary *callbackIds;
 NSDictionary* pendingCallFromRecents;
 BOOL monitorAudioRouteChange = NO;
 BOOL enableDTMF = NO;
+PKPushRegistry *_voipRegistry;
 
 - (void)pluginInitialize
 {
@@ -540,16 +541,22 @@ BOOL enableDTMF = NO;
 // PushKit
 - (void)init:(CDVInvokedUrlCommand*)command
 {
-  self.VoIPPushCallbackId = command.callbackId;
-  NSLog(@"[objC] callbackId: %@", self.VoIPPushCallbackId);
+    self.VoIPPushCallbackId = command.callbackId;
+    NSLog(@"[objC] callbackId: %@", self.VoIPPushCallbackId);
 
-  //http://stackoverflow.com/questions/27245808/implement-pushkit-and-test-in-development-behavior/28562124#28562124
-  PKPushRegistry *pushRegistry = [[PKPushRegistry alloc] initWithQueue:dispatch_get_main_queue()];
-  pushRegistry.delegate = self;
-  pushRegistry.desiredPushTypes = [NSSet setWithObject:PKPushTypeVoIP];
+    //http://stackoverflow.com/questions/27245808/implement-pushkit-and-test-in-development-behavior/28562124#28562124
+    NSLog(@"[objC] callbackId: %@", self.VoIPPushCallbackId);
+    dispatch_queue_t mainQueue = dispatch_get_main_queue();
+    // Create a push registry object
+    _voipRegistry = [[PKPushRegistry alloc] initWithQueue: mainQueue];
+    // Set the registry's delegate to self
+    [_voipRegistry setDelegate:(id<PKPushRegistryDelegate> _Nullable)self];
+    // Set the push type to VoIP
+    _voipRegistry.desiredPushTypes = [NSSet setWithObject:PKPushTypeVoIP];
 }
 
-- (void)pushRegistry:(PKPushRegistry *)registry didUpdatePushCredentials:(PKPushCredentials *)credentials forType:(NSString *)type{
+#define PushKit Delegate Methods
+- (void)pushRegistry:(PKPushRegistry *)registry didUpdatePushCredentials:(PKPushCredentials *)credentials forType:(PKPushType)type{
     if([credentials.token length] == 0) {
         NSLog(@"[objC] No device token!");
         return;
@@ -572,7 +579,7 @@ BOOL enableDTMF = NO;
     [self.commandDelegate sendPluginResult:pluginResult callbackId:self.VoIPPushCallbackId];
 }
 
-- (void)pushRegistry:(PKPushRegistry *)registry didReceiveIncomingPushWithPayload:(PKPushPayload *)payload forType:(NSString *)type
+- (void)pushRegistry:(PKPushRegistry *)registry didReceiveIncomingPushWithPayload:(PKPushPayload *)payload forType:(NSString *)type withCompletionHandler:(void (^)(void))completion
 {
     NSDictionary *payloadDict = payload.dictionaryPayload[@"aps"];
     NSLog(@"[objC] didReceiveIncomingPushWithPayload: %@", payloadDict);
@@ -580,18 +587,21 @@ BOOL enableDTMF = NO;
     NSString *message = payloadDict[@"alert"];
     NSLog(@"[objC] received VoIP message: %@", message);
     
-    NSString *data = payload.dictionaryPayload[@"data"];
+    NSDictionary *data = payload.dictionaryPayload[@"data"];
     NSLog(@"[objC] received data: %@", data);
     
     NSMutableDictionary* results = [NSMutableDictionary dictionaryWithCapacity:2];
     [results setObject:message forKey:@"function"];
-    [results setObject:data forKey:@"extra"];
+    [results setObject:@"" forKey:@"extra"];
     
     @try {
-        NSError* error;
-        NSDictionary* json = [NSJSONSerialization JSONObjectWithData:[data dataUsingEncoding:NSUTF8StringEncoding] options:kNilOptions error:&error];
+        NSError * err;
+        NSData * jsonData = [NSJSONSerialization dataWithJSONObject:data options:0 error:&err];
+        NSString * dataString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+        [results setObject:dataString forKey:@"extra"];
         
-        NSObject* caller = [json objectForKey:@"Caller"];
+        NSObject* caller = [data objectForKey:@"Caller"];
+        
         NSArray* args = [NSArray arrayWithObjects:[caller valueForKey:@"Username"], [caller valueForKey:@"ConnectionId"], nil];
         
         CDVInvokedUrlCommand* newCommand = [[CDVInvokedUrlCommand alloc] initWithArguments:args callbackId:@"" className:self.VoIPPushClassName methodName:self.VoIPPushMethodName];
@@ -599,13 +609,18 @@ BOOL enableDTMF = NO;
         [self receiveCall:newCommand];
     }
     @catch (NSException *exception) {
-       NSLog(@"[objC] error: %@", exception.reason);
+        NSLog(@"[objC] error: %@", exception.reason);
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:exception.reason];
+        [pluginResult setKeepCallback:[NSNumber numberWithBool:YES]];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:self.VoIPPushCallbackId];
+        completion();
+        return;
     }
     @finally {
         CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:results];
         [pluginResult setKeepCallback:[NSNumber numberWithBool:YES]];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:self.VoIPPushCallbackId];
+        completion();
     }
 }
-
 @end
