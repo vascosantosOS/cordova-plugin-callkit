@@ -537,7 +537,6 @@ PKPushRegistry *_voipRegistry;
         [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
     }
 }
-
 // PushKit
 - (void)init:(CDVInvokedUrlCommand*)command
 {
@@ -545,7 +544,6 @@ PKPushRegistry *_voipRegistry;
     NSLog(@"[objC] callbackId: %@", self.VoIPPushCallbackId);
 
     //http://stackoverflow.com/questions/27245808/implement-pushkit-and-test-in-development-behavior/28562124#28562124
-    NSLog(@"[objC] callbackId: %@", self.VoIPPushCallbackId);
     dispatch_queue_t mainQueue = dispatch_get_main_queue();
     // Create a push registry object
     _voipRegistry = [[PKPushRegistry alloc] initWithQueue: mainQueue];
@@ -578,8 +576,7 @@ PKPushRegistry *_voipRegistry;
     [pluginResult setKeepCallback:[NSNumber numberWithBool:YES]]; //[pluginResult setKeepCallbackAsBool:YES];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:self.VoIPPushCallbackId];
 }
-
-- (void)pushRegistry:(PKPushRegistry *)registry didReceiveIncomingPushWithPayload:(PKPushPayload *)payload forType:(NSString *)type withCompletionHandler:(void (^)(void))completion
+- (void)pushRegistry:(PKPushRegistry *)registry didReceiveIncomingPushWithPayload:(PKPushPayload *)payload forType:(PKPushType)type withCompletionHandler:(void (^)(void))completion
 {
     NSDictionary *payloadDict = payload.dictionaryPayload[@"aps"];
     NSLog(@"[objC] didReceiveIncomingPushWithPayload: %@", payloadDict);
@@ -593,27 +590,25 @@ PKPushRegistry *_voipRegistry;
     NSMutableDictionary* results = [NSMutableDictionary dictionaryWithCapacity:2];
     [results setObject:message forKey:@"function"];
     [results setObject:@"" forKey:@"extra"];
+
+    NSObject* caller = [data objectForKey:@"Caller"];
+    NSArray* args = [NSArray arrayWithObjects:[caller valueForKey:@"Username"], [caller valueForKey:@"ConnectionId"], nil];
+    CDVInvokedUrlCommand* newCommand = [[CDVInvokedUrlCommand alloc] initWithArguments:args callbackId:@"" className:self.VoIPPushClassName methodName:self.VoIPPushMethodName];
     
+    [self receiveCall:newCommand];
     @try {
         NSError * err;
         NSData * jsonData = [NSJSONSerialization dataWithJSONObject:data options:0 error:&err];
         NSString * dataString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
         [results setObject:dataString forKey:@"extra"];
         
-        NSObject* caller = [data objectForKey:@"Caller"];
         
-        NSArray* args = [NSArray arrayWithObjects:[caller valueForKey:@"Username"], [caller valueForKey:@"ConnectionId"], nil];
-        
-        CDVInvokedUrlCommand* newCommand = [[CDVInvokedUrlCommand alloc] initWithArguments:args callbackId:@"" className:self.VoIPPushClassName methodName:self.VoIPPushMethodName];
-        
-        [self receiveCall:newCommand];
     }
     @catch (NSException *exception) {
         NSLog(@"[objC] error: %@", exception.reason);
         CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:exception.reason];
         [pluginResult setKeepCallback:[NSNumber numberWithBool:YES]];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:self.VoIPPushCallbackId];
-        completion();
         return;
     }
     @finally {

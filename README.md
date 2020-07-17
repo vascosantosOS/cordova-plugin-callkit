@@ -1,5 +1,5 @@
 # cordova-plugin-callkit
-Cordova plugin that enables CallKit + PushKit (iOS) &amp; ConnectionService (Android) functionality to display native UI.
+Cordova plugin that enables CallKit + PushKit (iOS) &amp; ConnectionService (Android) functionality to display native UI PushWoosh for notifications.
 
 This plugin is basically a merged of 2 plugins, which are, [WebsiteBeaver/CordovaCall](https://github.com/WebsiteBeaver/CordovaCall) and [Hitman666/cordova-ios-voip-push](https://github.com/Hitman666/cordova-ios-voip-push), to basically fulfill iOS 13's requirement for VOIP Push Notification. All credits goes to both of them.
 
@@ -15,7 +15,7 @@ Add the plugin to your Cordova project:
 
 # API Guide
 
-For this, just refer to [WebsiteBeaver/CordovaCall](https://github.com/WebsiteBeaver/CordovaCall) and [Hitman666/cordova-ios-voip-push](https://github.com/Hitman666/cordova-ios-voip-push). I'm not gonna be bothered to merge the documentations at all since both of them already provide excellent guides on how to use them. The namespaces in this plugin are identical to both of the repos since this plugin combines both of them into one, like I mentioned above.
+For this, just refer to [WebsiteBeaver/CordovaCall](https://github.com/WebsiteBeaver/CordovaCall) and [Hitman666/cordova-ios-voip-push](https://github.com/Hitman666/cordova-ios-voip-push) and [OutSystems/pushwoosh-phonegap-plugin](https://github.com/OutSystems/pushwoosh-phonegap-plugin). I'm not gonna be bothered to merge the documentations at all since both of them already provide excellent guides on how to use them. The namespaces in this plugin are identical to both of the repos since this plugin combines both of them into one, like I mentioned above.
 
 # Usage
 
