@@ -1002,7 +1002,7 @@ public class CordovaCall extends CordovaPlugin {
 	{
 		PWLog.debug(TAG, "push opened: " + notification);
 
-		String jsStatement = String.format("cordova.require(\"pushwoosh-cordova-plugin.PushNotification\").notificationCallback(%s);", convertNotification(notification));
+		String jsStatement = String.format("cordova.require(\"cordova-plugin-callkit.PushNotification\").notificationCallback(%s);", convertNotification(notification));
 		evalJs(jsStatement);
 		sStartPushData = null;
 	}
@@ -1020,7 +1020,7 @@ public class CordovaCall extends CordovaPlugin {
 
 		PWLog.debug(TAG, "push received: " + notification);
 
-		String jsStatement = String.format("cordova.require(\"pushwoosh-cordova-plugin.PushNotification\").pushReceivedCallback(%s);", convertNotification(notification));
+		String jsStatement = String.format("cordova.require(\"cordova-plugin-callkit.PushNotification\").pushReceivedCallback(%s);", convertNotification(notification));
 		evalJs(jsStatement);
 
 		sReceivedPushData = null;
