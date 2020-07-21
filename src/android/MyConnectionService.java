@@ -2,6 +2,8 @@ package com.dmarc.cordovacall;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.PluginResult;
+import org.json.JSONObject;
+
 import android.content.Intent;
 import android.graphics.drawable.Icon;
 import android.os.Bundle;
@@ -16,6 +18,9 @@ import android.os.Handler;
 import android.net.Uri;
 import java.util.ArrayList;
 import android.util.Log;
+
+import static android.os.Build.VERSION.SDK_INT;
+import static android.os.Build.VERSION_CODES.Q;
 
 public class MyConnectionService extends ConnectionService {
 
@@ -37,7 +42,7 @@ public class MyConnectionService extends ConnectionService {
             public void onAnswer() {
                 this.setActive();
                 Intent intent = new Intent(CordovaCall.getCordova().getActivity().getApplicationContext(), CordovaCall.getCordova().getActivity().getClass());
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                 CordovaCall.getCordova().getActivity().getApplicationContext().startActivity(intent);
                 ArrayList<CallbackContext> callbackContexts = CordovaCall.getCallbackContexts().get("answer");
                 for (final CallbackContext callbackContext : callbackContexts) {
