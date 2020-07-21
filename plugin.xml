@@ -17,6 +17,10 @@
 	</js-module>
 
     <platform name="android">
+
+	    <preference name="LOG_LEVEL" default="DEBUG" />
+	    <preference name="ANDROID_FOREGROUND_PUSH" default="false" />
+
         <hook type="before_plugin_install" src="hooks/npmInstall.js"/>
 		<hook type="before_plugin_install" src="hooks/handle_google_services.js" />
 		<hook type="after_plugin_install" src="hooks/google_services_cleanup.js" />
