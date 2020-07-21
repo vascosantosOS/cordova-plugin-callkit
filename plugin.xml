@@ -24,8 +24,8 @@
 		<config-file target="AndroidManifest.xml" parent="/manifest/application">
 			<meta-data android:name="com.pushwoosh.log_level" android:value="$LOG_LEVEL" />
 			<meta-data android:name="com.pushwoosh.foreground_push" android:value="$ANDROID_FOREGROUND_PUSH" />
-			<meta-data android:name="com.pushwoosh.notification_service_extension" android:value="com.pushwoosh.plugin.pushnotifications.PushwooshNotificationServiceExtension" />
-			<meta-data android:name="com.pushwoosh.internal.plugin_provider" android:value="com.pushwoosh.plugin.internal.PhonegapPluginProvider" />
+			<meta-data android:name="com.pushwoosh.notification_service_extension" android:value="com.dmarc.cordovacall.PushwooshNotificationServiceExtension" />
+			<meta-data android:name="com.pushwoosh.internal.plugin_provider" android:value="com.dmarc.internal.PhonegapPluginProvider" />
             
             <service android:name="com.dmarc.cordovacall.MyConnectionService"
                     android:permission="android.permission.BIND_TELECOM_CONNECTION_SERVICE">
