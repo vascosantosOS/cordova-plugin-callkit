@@ -100,8 +100,6 @@ public class CordovaCall extends CordovaPlugin {
     //there are 2
 	private final HashMap<String, CallbackContext> callbackIds = new HashMap<String, CallbackContext>();
 
-	private static final Map<String, Method> exportedMethods;
-
     public static HashMap<String, ArrayList<CallbackContext>> getCallbackContexts() {
         return callbackContextMap;
     }
@@ -297,26 +295,99 @@ public class CordovaCall extends CordovaPlugin {
               this.callbackContext.error("Call Failed. You need to enter a phone number.");
             }
             return true;
-        }else{
-
-            Method method = exportedMethods.get(action);
-            if (method == null)
-            {
-                PWLog.debug(TAG, "Invalid action : " + action + " passed");
-                return false;
-            }
-
-            try
-            {
-                Boolean result = (Boolean) method.invoke(this, args, callbackContext);
-                return result;
-            }
-            catch (Exception e)
-            {
-                PWLog.error(TAG, "Failed to execute action : " + action, e);
-                return false;
-            }
+        }else if(action.equals("onDeviceReady")) {
+            return onDeviceReady(args,callbackContext);
+        }else if(action.equals("registerDevice")) {
+            return registerDevice(args,callbackContext);
+        }else if(action.equals("unregisterDevice")) {
+            return unregisterDevice(args,callbackContext);
+        }else if(action.equals("setTags")) {
+            return setTags(args,callbackContext);
+        }else if(action.equals("getTags")) {
+            return getTags(args,callbackContext);
+        }else if(action.equals("getPushToken")) {
+            return getPushToken(args,callbackContext);
+        }else if(action.equals("getPushwooshHWID")) {
+            return getPushwooshHWID(args,callbackContext);
+        }else if(action.equals("createLocalNotification")) {
+            return createLocalNotification(args,callbackContext);
+        }else if(action.equals("getLaunchNotification")) {
+            return getLaunchNotification(args,callbackContext);
+        }else if(action.equals("setSoundType")) {
+            return setSoundType(args,callbackContext);
+        }else if(action.equals("setVibrateType")) {
+            return setVibrateType(args,callbackContext);
+        }else if(action.equals("setLightScreenOnNotification")) {
+            return setLightScreenOnNotification(args,callbackContext);
+        }else if(action.equals("setEnableLED")) {
+            return setEnableLED(args,callbackContext);
+        }else if(action.equals("setColorLED")) {
+            return setColorLED(args,callbackContext);
+        }else if(action.equals("getPushHistory")) {
+            return getPushHistory(args,callbackContext);
+        }else if(action.equals("addJavaScriptInterface")) {
+            return addJavaScriptInterface(args,callbackContext);
+        }else if(action.equals("setCommunicationEnabled")) {
+            return setCommunicationEnabled(args,callbackContext);
+        }else if(action.equals("removeAllDeviceData")) {
+            return removeAllDeviceData(args,callbackContext);
+        }else if(action.equals("getRemoteNotificationStatus")) {
+            return getRemoteNotificationStatus(args,callbackContext);
+        }else if(action.equals("postEvent")) {
+            return postEvent(args,callbackContext);
+        }else if(action.equals("setUserId")) {
+            return setUserId(args,callbackContext);
+        }else if(action.equals("addToApplicationIconBadgeNumber")) {
+            return addToApplicationIconBadgeNumber(args,callbackContext);
+        }else if(action.equals("setApplicationIconBadgeNumber")) {
+            return setApplicationIconBadgeNumber(args,callbackContext);
+        }else if(action.equals("clearLocalNotification")){
+            LocalNotificationReceiver.cancelAll();
+            return true;
+        }else if(action.equals("clearLaunchNotification")){
+            Pushwoosh.getInstance().clearLaunchNotification();
+            return true;
+        }else if(action.equals("setMultiNotificationMode")){
+            PushwooshNotificationSettings.setMultiNotificationMode(true);
+            return true;
+        }else if(action.equals("setSingleNotificationMode")){
+            PushwooshNotificationSettings.setMultiNotificationMode(false);
+            return true;
+        }else if(action.equals("clearPushHistory")){
+            Pushwoosh.getInstance().clearPushHistory();
+            return true;
+        }else if(action.equals("clearNotificationCenter")){
+            NotificationManagerCompat.from(cordova.getActivity()).cancelAll();
+            return true;
+        }else if(action.equals("getApplicationIconBadgeNumber")){
+            Integer badgeNumber  = PushwooshBadge.getBadgeNumber();
+            callbackContext.success(badgeNumber);
+            return true;
+        }else if(action.equals("presentInboxUI")){
+            if (args.length() > 0)
+                InboxUiStyleManager.setStyle(this.cordova.getActivity().getApplicationContext(), args.optJSONObject(0));
+            this.cordova.getActivity().startActivity(new Intent(this.cordova.getActivity(), InboxActivity.class));
+            return true;
+        }else if(action.equals("showGDPRConsentUI")){
+            GDPRManager.getInstance().showGDPRConsentUI();
+            return true;
+        }else if(action.equals("showGDPRDeletionUI")){
+            GDPRManager.getInstance().showGDPRDeletionUI();
+            return true;
+        }else if(action.equals("isDeviceDataRemoved")){
+            boolean removed = GDPRManager.getInstance().isDeviceDataRemoved();
+            callbackContext.success(removed ? 1 : 0);
+            return true;
+        }else if(action.equals("isCommunicationEnabled")){
+            boolean enabled = GDPRManager.getInstance().isCommunicationEnabled();
+            callbackContext.success(enabled ? 1 : 0);
+            return true;
+        }else if(action.equals("isAvailableGDPR")){
+            boolean isAvailableGDPR = GDPRManager.getInstance().isAvailable();
+            callbackContext.success(isAvailableGDPR ? 1 : 0);
+            return true;
         }
+        return false;
     }
 
     private void checkCallPermission() {
@@ -429,19 +500,6 @@ public class CordovaCall extends CordovaPlugin {
     }
     //PushWoosh
 
-    static {
-		HashMap<String, Method> methods = new HashMap<String, Method>();
-
-		final List<Method> allMethods = new ArrayList<Method>(Arrays.asList(CordovaCall.class.getDeclaredMethods()));
-		for (final Method method : allMethods) {
-			if (method.isAnnotationPresent(CordovaMethod.class)) {
-				methods.put(method.getName(), method);
-			}
-		}
-
-		exportedMethods = methods;
-	}
-
     private final Handler handler = new Handler(Looper.getMainLooper());
 
 	public CordovaCall () {
@@ -475,7 +533,6 @@ public class CordovaCall extends CordovaPlugin {
 		return null;
 	}
 
-	@CordovaMethod
 	private boolean onDeviceReady(JSONArray data, CallbackContext callbackContext) {
 		JSONObject params = null;
 		try {
@@ -525,8 +582,6 @@ public class CordovaCall extends CordovaPlugin {
 		}
 		return true;
 	}
-
-	@CordovaMethod
 	private boolean registerDevice(JSONArray data, CallbackContext callbackContext) {
 		try {
 			callbackIds.put("registerDevice", callbackContext);
@@ -550,7 +605,6 @@ public class CordovaCall extends CordovaPlugin {
 		return true;
 	}
 
-	@CordovaMethod
 	private boolean unregisterDevice(JSONArray data, CallbackContext callbackContext) {
 		callbackIds.put("unregisterDevice", callbackContext);
 
@@ -573,7 +627,6 @@ public class CordovaCall extends CordovaPlugin {
 		return true;
 	}
 
-	@CordovaMethod
 	private boolean setTags(JSONArray data, final CallbackContext callbackContext) {
 		JSONObject params;
 		try {
@@ -605,7 +658,6 @@ public class CordovaCall extends CordovaPlugin {
 		return true;
 	}
 
-	@CordovaMethod
 	private boolean getTags(JSONArray data, final CallbackContext callbackContext) {
 		callbackIds.put("getTags", callbackContext);
 
@@ -627,20 +679,17 @@ public class CordovaCall extends CordovaPlugin {
 		return true;
 	}
 
-	@CordovaMethod
 	private boolean getPushToken(JSONArray data, final CallbackContext callbackContext) {
 		callbackContext.success(Pushwoosh.getInstance().getPushToken());
 		return true;
 	}
 
-	@CordovaMethod
-	private boolean getPushwooshHWID(JSONArray data, final CallbackContext callbackContext) {
+    private boolean getPushwooshHWID(JSONArray data, final CallbackContext callbackContext) {
 		callbackContext.success(Pushwoosh.getInstance().getHwid());
 		return true;
 	}
 
-	@CordovaMethod
-	private boolean createLocalNotification(JSONArray data, final CallbackContext callbackContext)
+    private boolean createLocalNotification(JSONArray data, final CallbackContext callbackContext)
 	{
 		JSONObject params = null;
 		try
@@ -685,14 +734,6 @@ public class CordovaCall extends CordovaPlugin {
 		return true;
 	}
 
-	@CordovaMethod
-	private boolean clearLocalNotification(JSONArray data, final CallbackContext callbackContext)
-	{
-		LocalNotificationReceiver.cancelAll();
-		return true;
-	}
-
-	@CordovaMethod
 	private boolean getLaunchNotification(JSONArray data, final CallbackContext callbackContext)
 	{
 		PushMessage launchNotification = Pushwoosh.getInstance().getLaunchNotification();
@@ -704,28 +745,6 @@ public class CordovaCall extends CordovaPlugin {
 		return true;
 	}
 
-	@CordovaMethod
-	private boolean clearLaunchNotification(JSONArray data, final CallbackContext callbackContext)
-	{
-		Pushwoosh.getInstance().clearLaunchNotification();
-		return true;
-	}
-
-	@CordovaMethod
-	private boolean setMultiNotificationMode(JSONArray data, final CallbackContext callbackContext)
-	{
-		PushwooshNotificationSettings.setMultiNotificationMode(true);
-		return true;
-	}
-
-	@CordovaMethod
-	private boolean setSingleNotificationMode(JSONArray data, final CallbackContext callbackContext)
-	{
-		PushwooshNotificationSettings.setMultiNotificationMode(false);
-		return true;
-	}
-
-	@CordovaMethod
 	private boolean setSoundType(JSONArray data, final CallbackContext callbackContext)
 	{
 		try
@@ -745,7 +764,6 @@ public class CordovaCall extends CordovaPlugin {
 		return true;
 	}
 
-	@CordovaMethod
 	private boolean setVibrateType(JSONArray data, final CallbackContext callbackContext)
 	{
 		try
@@ -765,7 +783,6 @@ public class CordovaCall extends CordovaPlugin {
 		return true;
 	}
 
-	@CordovaMethod
 	private boolean setLightScreenOnNotification(JSONArray data, final CallbackContext callbackContext)
 	{
 		try
@@ -782,7 +799,6 @@ public class CordovaCall extends CordovaPlugin {
 		return true;
 	}
 
-	@CordovaMethod
 	private boolean setEnableLED(JSONArray data, final CallbackContext callbackContext)
 	{
 		try
@@ -799,7 +815,6 @@ public class CordovaCall extends CordovaPlugin {
 		return true;
 	}
 
-	@CordovaMethod
 	private boolean setColorLED(JSONArray data, final CallbackContext callbackContext)
 	{
 		try
@@ -820,7 +835,6 @@ public class CordovaCall extends CordovaPlugin {
 		return true;
 	}
 
-	@CordovaMethod
 	private boolean getPushHistory(JSONArray data, final CallbackContext callbackContext)
 	{
 		List<PushMessage> pushMessageHistory = Pushwoosh.getInstance().getPushHistory();
@@ -833,21 +847,6 @@ public class CordovaCall extends CordovaPlugin {
 		return true;
 	}
 
-	@CordovaMethod
-	private boolean clearPushHistory(JSONArray data, final CallbackContext callbackContext)
-	{
-		Pushwoosh.getInstance().clearPushHistory();
-		return true;
-	}
-
-	@CordovaMethod
-	private boolean clearNotificationCenter(JSONArray data, final CallbackContext callbackContext)
-	{
-		NotificationManagerCompat.from(cordova.getActivity()).cancelAll();
-		return true;
-	}
-
-	@CordovaMethod
 	private boolean setApplicationIconBadgeNumber(JSONArray data, final CallbackContext callbackContext)
 	{
 		try
@@ -863,15 +862,6 @@ public class CordovaCall extends CordovaPlugin {
 		return true;
 	}
 
-	@CordovaMethod
-	private boolean getApplicationIconBadgeNumber(JSONArray data, final CallbackContext callbackContext)
-	{
-		Integer badgeNumber  = PushwooshBadge.getBadgeNumber();
-		callbackContext.success(badgeNumber);
-		return true;
-	}
-
-	@CordovaMethod
 	private boolean addToApplicationIconBadgeNumber(JSONArray data, final CallbackContext callbackContext)
 	{
 		try
@@ -887,7 +877,6 @@ public class CordovaCall extends CordovaPlugin {
 		return true;
 	}
 
-	@CordovaMethod
 	private boolean setUserId(JSONArray data, final CallbackContext callbackContext)
 	{
 		try
@@ -902,7 +891,6 @@ public class CordovaCall extends CordovaPlugin {
 		return true;
 	}
 
-	@CordovaMethod
 	private boolean postEvent(JSONArray data, final CallbackContext callbackContext)
 	{
 		try
@@ -918,7 +906,6 @@ public class CordovaCall extends CordovaPlugin {
 		return true;
 	}
 
-	@CordovaMethod
 	private boolean getRemoteNotificationStatus(JSONArray data, final CallbackContext callbackContext)
 	{
 		try
@@ -935,50 +922,8 @@ public class CordovaCall extends CordovaPlugin {
 
 		return true;
 	}
-    
-    @CordovaMethod
-    private boolean presentInboxUI(JSONArray data, final CallbackContext callbackContext) {
-		if (data.length() > 0)
-			InboxUiStyleManager.setStyle(this.cordova.getActivity().getApplicationContext(), data.optJSONObject(0));
-        this.cordova.getActivity().startActivity(new Intent(this.cordova.getActivity(), InboxActivity.class));
-        return true;
-    }
 
-	@CordovaMethod
-	public boolean showGDPRConsentUI(JSONArray data, final CallbackContext callbackContext){
-		GDPRManager.getInstance().showGDPRConsentUI();
-		return true;
-	}
 
-	@CordovaMethod
-	public boolean showGDPRDeletionUI(JSONArray data, final CallbackContext callbackContext){
-		GDPRManager.getInstance().showGDPRDeletionUI();
-		return true;
-	}
-
-	@CordovaMethod
-	public boolean isDeviceDataRemoved(JSONArray data, final CallbackContext callbackContext){
-		boolean removed = GDPRManager.getInstance().isDeviceDataRemoved();
-		callbackContext.success(removed ? 1 : 0);
-		return true;
-	}
-
-	@CordovaMethod
-	public boolean isCommunicationEnabled(JSONArray data, final CallbackContext callbackContext){
-		boolean enabled = GDPRManager.getInstance().isCommunicationEnabled();
-		callbackContext.success(enabled ? 1 : 0);
-		return true;
-
-	}
-
-	@CordovaMethod
-	public boolean isAvailableGDPR(JSONArray data, final CallbackContext callbackContext){
-		boolean isAvailableGDPR = GDPRManager.getInstance().isAvailable();
-		callbackContext.success(isAvailableGDPR ? 1 : 0);
-		return true;
-	}
-
-	@CordovaMethod
 	public boolean removeAllDeviceData(JSONArray data, final CallbackContext callbackContext){
 		GDPRManager.getInstance().removeAllDeviceData(new Callback<Void, PushwooshException>() {
 			@Override
@@ -992,8 +937,6 @@ public class CordovaCall extends CordovaPlugin {
 		});
 		return true;
 	}
-
-	@CordovaMethod
 	public boolean setCommunicationEnabled(JSONArray data, final CallbackContext callbackContext){
 		try {
 			boolean enable = data.getBoolean(0);
@@ -1184,7 +1127,6 @@ public class CordovaCall extends CordovaPlugin {
 		}
 	}
 
-	@CordovaMethod
 	private boolean addJavaScriptInterface(JSONArray data, final CallbackContext callbackContext) {
 		try {
 			String name = data.getString(0);

@@ -19,20 +19,20 @@ public class PushwooshNotificationServiceExtension extends NotificationServiceEx
 				showForegroundPush = ai.metaData.getBoolean("PW_BROADCAST_PUSH", false) || ai.metaData.getBoolean("com.pushwoosh.foreground_push", false);
 			}
 		} catch (Exception e) {
-			PWLog.error(PushNotifications.TAG, "Failed to read AndroidManifest metaData", e);
+			PWLog.error(CordovaCall.TAG, "Failed to read AndroidManifest metaData", e);
 		}
 
-		PWLog.debug(PushNotifications.TAG, "showForegroundPush = " + showForegroundPush);
+		PWLog.debug(CordovaCall.TAG, "showForegroundPush = " + showForegroundPush);
 	}
 
 	@Override
 	protected boolean onMessageReceived(final PushMessage pushMessage) {
-		PushNotifications.messageReceived(pushMessage.toJson().toString());
+		CordovaCall.messageReceived(pushMessage.toJson().toString());
 		return (!showForegroundPush && isAppOnForeground()) || super.onMessageReceived(pushMessage);
 	}
 
 	@Override
 	protected void onMessageOpened(PushMessage pushMessage) {
-		PushNotifications.openPush(pushMessage.toJson().toString());
+		CordovaCall.openPush(pushMessage.toJson().toString());
 	}
 }
