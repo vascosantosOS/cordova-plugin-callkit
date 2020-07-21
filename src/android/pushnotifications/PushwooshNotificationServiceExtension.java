@@ -27,8 +27,13 @@ public class PushwooshNotificationServiceExtension extends NotificationServiceEx
 
 	@Override
 	protected boolean onMessageReceived(final PushMessage pushMessage) {
-		CordovaCall.messageReceived(pushMessage.toJson().toString());
-		return (!showForegroundPush && isAppOnForeground()) || super.onMessageReceived(pushMessage);
+		String message = pushMessage.toJson().toString();
+		boolean result = true;
+		CordovaCall.messageReceived(message);
+		if(CordovaCall.isKilled()){
+			result = super.onMessageReceived(pushMessage);
+		}
+		return (!showForegroundPush && isAppOnForeground()) || result;
 	}
 
 	@Override

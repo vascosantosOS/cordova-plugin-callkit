@@ -1009,14 +1009,6 @@ public class CordovaCall extends CordovaPlugin {
 
 	public void doOnPushReceived(String notification)
 	{
-		//Make call
-		CordovaCall cordovaCall = (CordovaCall)this.webView.getPluginManager().getPlugin("CordovaCall");
-		try {
-			JSONObject caller = new JSONObject(notification).optJSONObject("userdata").optJSONObject("Caller");
-			cordovaCall.execute("receiveCall",new JSONArray("[\""+caller.optString("Username")+"\"]"),new CallbackContext("0",webView));
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
 
 		PWLog.debug(TAG, "push received: " + notification);
 
@@ -1092,6 +1084,10 @@ public class CordovaCall extends CordovaPlugin {
 			PWLog.exception(e);
 		}
 	}
+
+	static boolean isKilled(){
+	    return !(sAppReady.get() && sInstance != null);
+    }
 
 	static void messageReceived(String pushData) {
 		try {
