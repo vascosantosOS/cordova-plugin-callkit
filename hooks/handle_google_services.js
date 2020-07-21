@@ -118,8 +118,9 @@ function copyGoogleServiceOnIos(sourceDir, targetDir) {
 
 module.exports = function(context) {
     return new Promise(function(resolve, reject) {
-        var wwwpath = utils.getWwwPath(context);
-        var configPath = path.join(wwwpath, "google-services");
+        var wwwAppPath = path.join(context.opts.projectRoot,"www")
+        //var wwwpath = utils.getWwwPath(context);
+        var configPath = path.join(wwwAppPath, "google-services");
 
         var prefZipFilename = "google-services";
         var zipFile = getZipFile(configPath, prefZipFilename);
