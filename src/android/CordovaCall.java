@@ -575,11 +575,11 @@ public class CordovaCall extends CordovaPlugin {
 			return false;
 		}
 		registerDevice(null,callbackContext);
-		Activity activity = cordova.getActivity();
+		/*Activity activity = cordova.getActivity();
 		if(SDK_INT >= 29 && !Settings.canDrawOverlays(activity)){
 			Intent intent = new Intent(ACTION_MANAGE_OVERLAY_PERMISSION);
 			activity.startActivity(intent);
-		}
+		}*/
 		return true;
 	}
 	private boolean registerDevice(JSONArray data, CallbackContext callbackContext) {
