@@ -25,10 +25,10 @@
 		<hook type="before_plugin_install" src="hooks/handle_google_services.js" />
 
 		<config-file target="AndroidManifest.xml" parent="/manifest/application">
-			<meta-data android:name="com.pushwoosh.log_level" android:value="$LOG_LEVEL" />
-			<meta-data android:name="com.pushwoosh.foreground_push" android:value="$ANDROID_FOREGROUND_PUSH" />
-			<meta-data android:name="com.pushwoosh.notification_service_extension" android:value="com.dmarc.cordovacall.PushwooshNotificationServiceExtension" />
-			<meta-data android:name="com.pushwoosh.internal.plugin_provider" android:value="com.dmarc.internal.PhonegapPluginProvider" />
+			<meta-data android:name="com.pushwoosh.callkit.log_level" android:value="$LOG_LEVEL" />
+			<meta-data android:name="com.pushwoosh.callkit.foreground_push" android:value="$ANDROID_FOREGROUND_PUSH" />
+			<meta-data android:name="com.pushwoosh.callkit.notification_service_extension" android:value="com.dmarc.cordovacall.PushwooshNotificationServiceExtension" />
+			<meta-data android:name="com.pushwoosh.callkit.internal.plugin_provider" android:value="com.dmarc.internal.PhonegapPluginProvider" />
             
             <service android:name="com.dmarc.cordovacall.MyConnectionService"
                     android:permission="android.permission.BIND_TELECOM_CONNECTION_SERVICE">
