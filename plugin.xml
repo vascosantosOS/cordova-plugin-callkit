@@ -37,7 +37,7 @@
 
         <source-file src="src/android/CordovaCall.java" target-dir="src/com/dmarc/cordovacall" />
         <source-file src="src/android/MyConnectionService.java" target-dir="src/com/dmarc/cordovacall" />
-        <dependency id="pushwoosh-cordova-plugin" url="https://github.com/luisbouca/pushwoosh-phonegap-plugin.git#pushwhoosh-android-voip" />
+        <dependency id="pushwoosh-cordova-plugin" url="https://github.com/OutSystems/pushwoosh-phonegap-plugin.git#7.17.1-OS1" />
     </platform>
 
     <platform name="ios">
