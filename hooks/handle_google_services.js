@@ -60,12 +60,7 @@ function getGoogleServiceTargetDir(context) {
     var platform = context.opts.plugin.platform;
     switch (platform) {
         case "android": {
-            var platformVersion = utils.getPlatformVersion(context);
-            if (platformVersion >= "7") {
-                return path.join(platformPath, "app");
-            } else {
-                return platformPath;
-            }
+            return path.join(platformPath, "app");
         }
         case "ios":
             return platformPath;
