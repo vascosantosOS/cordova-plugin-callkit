@@ -9,12 +9,12 @@ function getPlatformVersion(context) {
     var projectRoot = context.opts.projectRoot;
     var platformsJsonFile = path.join(
         projectRoot,
-        "platforms",
-        "platforms.json"
+        "package-lock.json"
     );
     var platforms = require(platformsJsonFile);
     var platform = context.opts.plugin.platform;
-    return platforms[platform];
+    var version = platforms.dependencies["cordova-" + platform].version;
+    return version;
 }
 
 function rmNonEmptyDir(dir_path) {
